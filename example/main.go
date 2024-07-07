@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -28,23 +29,32 @@ func main() {
 	}
 	fmt.Printf("session: %+v\n", session)
 
-	body, err := client.GetData(request.HomeNetRequest)
+	body, err := client.GetData(request.DataRequest{
+		Parameters: map[string]string{
+			"page": "netDev",
+		},
+	})
 	if err != nil {
 		fmt.Printf("cant request data: %s\n", err)
 		os.Exit(1)
 	}
 
-	resp, err := response.UnmarshalAs[response.HomeNet](body)
+	os.WriteFile("response.json", body, 0644)
+
+	resp, err := response.UnmarshalAs[response.NetDev](body)
 	if err != nil {
 		fmt.Printf("cant unmarshal data: %s\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("connected devices:")
-	for _, d := range resp.Data.Devices {
-		if !d.OwnEntry {
-			fmt.Printf("Device: %s; connection type: %s; is self: %t\n", d.NameInfo.Name, d.ConnInfo.Kind, d.OwnClientDevice)
-		}
-	}
+	marshalled, _ := json.Marshal(resp)
+	os.WriteFile("my.json", marshalled, 0644)
+
+	// fmt.Println("connected devices:")
+	// for _, d := range resp.Data.Devices {
+	// 	if !d.OwnEntry {
+	// 		fmt.Printf("Device: %s; connection type: %s; is self: %t\n", d.NameInfo.Name, d.ConnInfo.Kind, d.OwnClientDevice)
+	// 	}
+	// }
 
 	err = client.Logout()
 	if err != nil {

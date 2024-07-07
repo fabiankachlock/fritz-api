@@ -47,7 +47,7 @@ func (f *FritzBoxClient) GetDataJson(request request.DataRequest) (map[string]in
 
 // GetHomeNet returns the data for the home network page
 func (f *FritzBoxClient) GetHomeNet() (response.DataResponse[response.HomeNet], error) {
-	return PerformRequest[response.HomeNet](f, request.HomeNetRequest)
+	return PerformRequest[response.HomeNet](f, request.MeshRequest)
 }
 
 // PerformRequest is a wrapper that performs a request and unmarshals the response

@@ -5,9 +5,15 @@ type DataRequest struct {
 }
 
 var (
-	HomeNetRequest = DataRequest{
+	MeshRequest = DataRequest{
 		Parameters: map[string]string{
 			"page": "homeNet",
+		},
+	}
+
+	NetworkDevicesRequest = DataRequest{
+		Parameters: map[string]string{
+			"page": "netDev",
 		},
 	}
 )

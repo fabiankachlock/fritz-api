@@ -9,7 +9,7 @@ const compareArray = (path, orig, other) => {
       const origItemID = orig[i].UID;
       const otherItem = other.find((item) => item.UID === origItemID);
       compare([...path, origItemID], orig[i], otherItem);
-    } else if (typeof orig[i] === "object") {
+    } else if (typeof orig[i] === "object" && other[i]) {
       compare([...path, i.toString()], orig[i], other[i]);
     } else if (orig[i] !== other[i]) {
       console.log(`${[...path, i.toString()].join(".")} is different`);

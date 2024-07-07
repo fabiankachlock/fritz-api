@@ -1,6 +1,6 @@
 package response
 
-// HomeNet is the response of requests send by the homeNet [Site]
+// HomeNet is the response of requests send by the mesh [Site]
 //
 // [Site]: http://fritz.box/#homeNet
 type HomeNet struct {
@@ -10,11 +10,11 @@ type HomeNet struct {
 	// NOTE: this may be connected to a request field 'updating'
 	// it may be in realtion to probably partial ui updates but the
 	// responses don't seem to be reduced in size
-	Updating      string          `json:"updating"`
-	Devices       []HomeNetDevice `json:"devices"`     // Devices is a list of all devices currently connected to the (mesh)-network
-	Topology      Topology        `json:"topology"`    // Topology is a hierarchical representation of the currently connected devices in the network
-	FirmwareCheck FirmwareCheck   `json:"fwcheck"`     // FirmwareCheck [unidentified] seems to be status of the firmware check
-	NexusClient   bool            `json:"nexusclient"` // NexusClient [unidentified]
+	Updating      string        `json:"updating"`
+	Devices       []MeshDevice  `json:"devices"`     // Devices is a list of all devices currently connected to the (mesh)-network
+	Topology      Topology      `json:"topology"`    // Topology is a hierarchical representation of the currently connected devices in the network
+	FirmwareCheck FirmwareCheck `json:"fwcheck"`     // FirmwareCheck [unidentified] seems to be status of the firmware check
+	NexusClient   bool          `json:"nexusclient"` // NexusClient [unidentified]
 }
 
 // FirmwareCheck is the status of the firmware check
@@ -27,13 +27,13 @@ type FirmwareCheck struct {
 
 // Topology is a hierarchical representation of the currently connected devices in the network
 type Topology struct {
-	RootDeviceId string                   `json:"rootuid"`
-	Devices      map[string]HomeNetDevice `json:"devices"`
+	RootDeviceId string                `json:"rootuid"`
+	Devices      map[string]MeshDevice `json:"devices"`
 }
 
-// HomeNetDevice is a device connected to the network
-type HomeNetDevice struct {
-	UID             string         `json:"UID"`               // UID is the unique identifier of the device in the ,esh topology
+// MeshDevice is a device connected to the network
+type MeshDevice struct {
+	UID             string         `json:"UID"`               // UID is the unique identifier of the device in the mesh topology
 	OwnEntry        bool           `json:"ownentry"`          // OwnEntry is whether the device is itself
 	OwnClientDevice bool           `json:"own_client_device"` // OwnClientDevice is whether this device is the currently interacting client
 	Master          bool           `json:"master"`            // Master is whether the device is the master device
@@ -48,14 +48,14 @@ type HomeNetDevice struct {
 	Gateway         bool           `json:"gateway"`           // Gateway [unidentified]
 	BoxType         BoxType        `json:"boxType"`           // BoxType [unidentified] seems to be the type of the fritz box
 
-	NameInfo    NameInfo       `json:"nameinfo"`                              // NameInfo is the name information of the device
-	VersionInfo VersionInfo    `json:"versioninfo" transform:"extendedEmpty"` // VersionInfo is the version information of the device
-	StateInfo   StateInfo      `json:"stateinfo"`                             // StateInfo is the state information of the device
-	UpdateInfo  UpdateInfo     `json:"updateinfo"`                            // UpdateInfo is the software update information of the device (none for unknown/"normal" devices)
-	PhoneInfo   PhoneInfo      `json:"phone"`                                 // PhoneInfo is the phone information of the device (only for the root device)
-	WlanInfo    []WlanInfo     `json:"wlaninfo"`                              // WlanInfo is the information about wlan networks exposed by the device
-	Detailinfo  Detailinfo     `json:"detailinfo"`                            // Detailinfo is information about details of the device (in the ui)
-	ConnInfo    ConnectionInfo `json:"conninfo" transform:"extendedEmpty"`    // ConnectionInfo is the information about the connection to the router
+	NameInfo    NameInfo            `json:"nameinfo"`                              // NameInfo is the name information of the device
+	VersionInfo VersionInfo         `json:"versioninfo" transform:"extendedEmpty"` // VersionInfo is the version information of the device
+	StateInfo   MeshDeviceStateInfo `json:"stateinfo"`                             // StateInfo is the state information of the device
+	UpdateInfo  UpdateInfo          `json:"updateinfo"`                            // UpdateInfo is the software update information of the device (none for unknown/"normal" devices)
+	PhoneInfo   PhoneInfo           `json:"phone"`                                 // PhoneInfo is the phone information of the device (only for the root device)
+	WlanInfo    []WlanInfo          `json:"wlaninfo"`                              // WlanInfo is the information about wlan networks exposed by the device
+	Detailinfo  Detailinfo          `json:"detailinfo"`                            // Detailinfo is information about details of the device (in the ui)
+	ConnInfo    ConnectionInfo      `json:"conninfo" transform:"extendedEmpty"`    // ConnectionInfo is the information about the connection to the router
 
 	Connections []InternetConnection `json:"connections"` // Connections is a list of all connections the device has to the internet (only for the root device)
 }
@@ -103,8 +103,8 @@ type NameInfo struct {
 	URL     string `json:"url"`     // URL is an optional url to the device (only when the device has a web interface)
 }
 
-// StateInfo is information about the state of the device
-type StateInfo struct {
+// MeshDeviceStateInfo is information about the state of the device
+type MeshDeviceStateInfo struct {
 	Active bool `json:"active"` // Active whether the device is currently active
 
 	// the following section only applies "normal" client
