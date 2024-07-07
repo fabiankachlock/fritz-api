@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fabiankachlock/fritz-api/pkg/request"
 	"github.com/fabiankachlock/fritz-api/pkg/response"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -18,10 +19,11 @@ import (
 type Client struct {
 	boxUrl string
 	sid    string
+	Lang   string
 }
 
 func NewClient(boxUrl string) *Client {
-	return &Client{boxUrl: boxUrl}
+	return &Client{boxUrl: boxUrl, Lang: "de"}
 }
 
 func (c *Client) Login(username string, password string) error {
@@ -36,6 +38,7 @@ func (c *Client) Login(username string, password string) error {
 	data.Set("username", username)
 
 	info, err = c.sendLoginRequest("POST", data)
+	c.sid = info.SID
 	if err != nil {
 		return err
 	}
@@ -101,4 +104,44 @@ func (c Client) solveChallenge(challenge string, pw string) string {
 	hash1 := pbkdf2.Key([]byte(pw), salt1, iter1, 32, sha256.New)
 	hash2 := pbkdf2.Key(hash1, salt2, iter2, 32, sha256.New)
 	return parts[4] + "$" + hex.EncodeToString(hash2)
+}
+
+func (c Client) sendDataRequest(request url.Values) ([]byte, error) {
+	dataUrl := fmt.Sprintf("%s/data.lua", c.boxUrl)
+	request.Set("sid", c.sid)
+	request.Set("xhr", "1")
+	request.Set("lang", c.Lang)
+
+	req, err := http.NewRequest("POST", dataUrl, strings.NewReader(request.Encode()))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept", "application/json")
+	if err != nil {
+		return []byte{}, err
+	}
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	responseBody, err := io.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return responseBody, nil
+}
+
+func (c Client) RequestData(req request.DataRequest) ([]byte, error) {
+	parameters := url.Values{}
+	parameters.Set("xhrId", "initial")
+	for key, value := range req.Parameters {
+		parameters.Set(key, value)
+	}
+	data, err := c.sendDataRequest(parameters)
+	if err != nil {
+		return []byte{}, err
+	}
+	return data, nil
 }
