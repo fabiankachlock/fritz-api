@@ -1,16 +1,26 @@
 package response
 
+// HomeNet is the response of requests send by the homeNet [Site]
+//
+// [Site]: http://fritz.box/#homeNet
 type HomeNet struct {
+	// Searching [unidentified]
 	Searching bool `json:"searching"`
-	IPClient  bool `json:"ipclient"`
+	// IPClient [unidentified]
+	IPClient bool `json:"ipclient"`
+	// Updating [unidentified]
 	// NOTE: this may be connected to a request field 'updating'
 	// it may be in realtion to probably partial ui updates but the
 	// responses don't seem to be reduced in size
-	Updating string          `json:"updating"`
-	Devices  []HomeNetDevice `json:"devices"`
-	// Topology      Topology        `json:"topology"`
+	Updating string `json:"updating"`
+	// Devices is a list of all devices currently connected to the (mesh)-network
+	Devices []HomeNetDevice `json:"devices"`
+	// Topology is a hierarchical representation of the currently connected devices in the network
+	Topology Topology `json:"topology"`
+	// FirmwareCheck [unidentified] seems to be status of the firmware check
 	FirmwareCheck FirmwareCheck `json:"fwcheck"`
-	NexusCLient   bool          `json:"nexusclient"`
+	// NexusClient [unidentified]
+	NexusClient bool `json:"nexusclient"`
 }
 
 type FirmwareCheck struct {
@@ -21,14 +31,14 @@ type FirmwareCheck struct {
 }
 
 type Topology struct {
-	RootDeviceId string `json:"rootuid"`
-	Devices      map[string]TopologyDevice
+	RootDeviceId string                    `json:"rootuid"`
+	Devices      map[string]TopologyDevice `json:"devices"`
 }
 
 type TopologyDevice struct {
-	OwnClientDevice bool   `json:"own_client_device"`
-	Dist            int    `json:"dist"`
-	Parent          string `json:"parent"`
+	OwnClientDevice bool   `json:"own_client_device"` // [unidentified]
+	Dist            int    `json:"dist"`              // [unidentified] this seems toi be the distance (in node) toi the root device
+	Parent          string `json:"parent"`            // the parent device in the topology view
 	VersionInfo     []struct {
 		Version string `json:"version"`
 		Fos     bool   `json:"fos"`
@@ -154,18 +164,18 @@ type HomeNetDevice struct {
 	OwnClientDevice bool   `json:"own_client_device"`
 	Dist            int    `json:"dist"`
 	Parent          string `json:"parent"`
-	// VersionInfo     struct {
-	// 	Version string `json:"version"`
-	// 	Fos     bool   `json:"fos"`
-	// } `json:"versioninfo,omitempty"`
+	VersionInfo     struct {
+		Version string `json:"version"`
+		Fos     bool   `json:"fos"`
+	} `json:"versioninfo" transform:"extendedEmpty"`
 	UID      string   `json:"UID"`
 	Switch   bool     `json:"switch"`
 	Children []string `json:"children"`
 	Wlaninfo []struct {
 		Text       string `json:"text"`
 		Title      string `json:"title"`
-		Shorttitle string `json:"shorttitle,omitempty"`
-	} `json:"wlaninfo,omitempty"`
+		Shorttitle string `json:"shorttitle"`
+	} `json:"wlaninfo"`
 	Connections []Connection `json:"connections"`
 	Conninfo    []any        `json:"conninfo"`
 	Ipinfo      string       `json:"ipinfo"`
@@ -174,16 +184,16 @@ type HomeNetDevice struct {
 	Phone       struct {
 		NumberCount int `json:"numberCount"`
 		ActiveCount int `json:"activeCount"`
-	} `json:"phone,omitempty"`
+	} `json:"phone"`
 	Conn     string `json:"conn"`
 	Master   bool   `json:"master"`
-	BoxType  string `json:"boxType,omitempty"`
+	BoxType  string `json:"boxType"`
 	Gateway  bool   `json:"gateway"`
 	Nameinfo struct {
 		Name    string `json:"name"`
 		Product string `json:"product"`
 		URL     string `json:"url"`
-	} `json:"nameinfo,omitempty"`
+	} `json:"nameinfo"`
 	Updateinfo struct {
 		State string `json:"state"`
 	} `json:"updateinfo"`
