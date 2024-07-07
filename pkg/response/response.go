@@ -19,6 +19,16 @@ type DataResponse[T any] struct {
 	Sid  string `json:"sid"`
 }
 
+func UnmarshalRaw(response []byte) (map[string]interface{}, error) {
+	data := map[string]interface{}{}
+	err := json.Unmarshal(response, &data)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+
+	return data, nil
+}
+
 func UnmarshalAs[T any](response []byte) (DataResponse[T], error) {
 	var dataResponse DataResponse[T]
 	data := map[string]interface{}{}
