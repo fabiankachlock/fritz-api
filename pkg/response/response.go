@@ -11,7 +11,7 @@ type DataResponse[T any] struct {
 	// TODO: figure out what 'hide' does and how its defined
 	// It seems to be a map of true values configuring a set of ui options that should be hidden
 	Hide           map[string]bool `json:"hide"`
-	TimeTillLogout int             `json:"timeTillLogout,string"`
+	TimeTillLogout string          `json:"timeTillLogout"`
 	// TODO: figure out what 'time' does and how its defined
 	// Until now it only saw empty arrays for this field
 	Time []any  `json:"time"`

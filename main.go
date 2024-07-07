@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -44,6 +45,8 @@ func main() {
 	resp, _ := response.UnmarshalAs[response.HomeNet](bytes)
 	// fmt.Println(resp)
 	for _, d := range resp.Data.Devices {
-		fmt.Printf("Device: %s %s\n", d.Nameinfo.Name, d.Wlaninfo[0].Text)
+		fmt.Printf("Device: %s %v\n", d.NameInfo.Name, d.ConnInfo.Kind)
 	}
+	bytes, _ = json.Marshal(resp)
+	os.WriteFile("my.json", bytes, 0644)
 }

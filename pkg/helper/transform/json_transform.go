@@ -1,7 +1,6 @@
 package transform
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 )
@@ -43,7 +42,7 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 	for key, value := range raw {
 		field := findJsonField(targetValue, key)
 		if !field.IsValid() || !field.CanSet() {
-			fmt.Println("field not found", key, value, field, reflect.ValueOf(target).Type())
+			// fmt.Println("field not found", key, value, field, reflect.ValueOf(target).Type())
 			continue
 		}
 
@@ -88,12 +87,12 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 			if field.Kind() == reflect.Slice {
 				sliceLen := len(valueType)
 				elementType := field.Type().Elem()
-				elementValue := reflect.New(elementType)
 				slice := reflect.MakeSlice(reflect.SliceOf(elementType), 0, sliceLen)
 
 				switch elementType.Kind() {
 				case reflect.Struct:
 					for i := 0; i < sliceLen; i++ {
+						elementValue := reflect.New(elementType)
 						mappedStruct := MapToStruct(valueType[i].(map[string]interface{}), elementValue.Interface())
 						slice = reflect.Append(slice, reflect.ValueOf(mappedStruct).Elem())
 					}
@@ -105,10 +104,20 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 
 				field.Set(slice)
 			}
+		case float64:
+			switch field.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				field.SetInt(int64(valueType))
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				field.SetUint(uint64(valueType))
+			case reflect.Float32, reflect.Float64:
+				field.SetFloat(valueType)
+			}
 		default:
-			// try to set field
 			if reflect.TypeOf(value).AssignableTo(field.Type()) {
 				field.Set(reflect.ValueOf(value))
+			} else if reflect.ValueOf(value).CanConvert(field.Type()) {
+				field.Set(reflect.ValueOf(value).Convert(field.Type()))
 			}
 		}
 	}
