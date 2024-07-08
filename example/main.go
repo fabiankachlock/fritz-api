@@ -53,7 +53,7 @@ func main() {
 
 	err = client.Logout()
 	if err != nil {
-		fmt.Printf("cant logout data: %s\n", err)
+		fmt.Printf("cant logout: %s\n", err)
 		os.Exit(1)
 	}
 }

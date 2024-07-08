@@ -28,3 +28,70 @@ The login works via a designed endpoint for third party applications at `/login_
 > The `/login_sid.lua` endpoint does not seem to work with the default user. 
 
 In order to perform a login an username & password is needed. It's recommended to create a designed user with limited access rights to be used by this client at [http://fritz.box/#user](http://fritz.box/#user).
+
+## Usage
+
+Install the package:
+
+`go get -u github.com/fabiankachlock/fritz-api`
+
+See the example:
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/fabiankachlock/fritz-api"
+	"github.com/fabiankachlock/fritz-api/pkg/request"
+	"github.com/fabiankachlock/fritz-api/pkg/response"
+)
+
+const (
+	Username = "box"
+	Password = "admin123"
+)
+
+func main() {
+	client := fritz.NewClient("http://127.0.0.1:4000")
+	err := client.Login(Username, Password)
+	if err != nil {
+		fmt.Printf("cant log in: %s\n", err)
+		os.Exit(1)
+	}
+	session, err := client.GetSession()
+	if err != nil {
+		fmt.Printf("cant get session: %s\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("session: %+v\n", session)
+
+	body, err := client.GetData(request.NetworkUsageRequest)
+	if err != nil {
+		fmt.Printf("cant request data: %s\n", err)
+		os.Exit(1)
+	}
+
+	resp, err := response.UnmarshalCustomAs[response.NetCnt](body)
+	if err != nil {
+		fmt.Printf("cant unmarshal data: %s\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("connected devices:")
+	for _, d := range resp.Data.Devices {
+        if !d.OwnEntry {
+            fmt.Printf("Device: %s; connection type: %s; is self: %t\n", d.NameInfo.Name, d.ConnInfo.Kind, d.OwnClientDevice)
+		}
+	}
+
+	err = client.Logout()
+    if err != nil {
+        fmt.Printf("cant unmarshal data: %s\n", err)
+        os.Exit(1)
+    }
+}
+
+```
