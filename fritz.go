@@ -50,7 +50,15 @@ func (f *FritzBoxClient) GetHomeNet() (response.DataResponse[response.HomeNet], 
 	return PerformRequest[response.HomeNet](f, request.MeshRequest)
 }
 
-// PerformRequest is a wrapper that performs a request and unmarshals the response
+func (f *FritzBoxClient) GetNetworkDevices() (response.DataResponse[response.NetDev], error) {
+	return PerformRequest[response.NetDev](f, request.NetworkDevicesRequest)
+}
+
+func (f *FritzBoxClient) GetNetworkUsage() (response.NetCnt, error) {
+	return PerformRequestCustom[response.NetCnt](f, request.NetworkUsageRequest)
+}
+
+// PerformRequest is a wrapper that performs a request and unmarshals the response as data response
 func PerformRequest[T any](f *FritzBoxClient, req request.DataRequest) (response.DataResponse[T], error) {
 	body, err := f.client.RequestData(req)
 	if err != nil {
@@ -64,7 +72,22 @@ func PerformRequest[T any](f *FritzBoxClient, req request.DataRequest) (response
 	return json, nil
 }
 
-// PerformRequest is a wrapper that performs a request and unmarshals the response as raw json
+// PerformRequestCustom is a wrapper that performs a request and unmarshals the response
+func PerformRequestCustom[T any](f *FritzBoxClient, req request.DataRequest) (T, error) {
+	var empty T
+	body, err := f.client.RequestData(req)
+	if err != nil {
+		return empty, err
+	}
+
+	json, err := response.UnmarshalCustomAs[T](body)
+	if err != nil {
+		return empty, err
+	}
+	return json, nil
+}
+
+// PerformRequestRaw is a wrapper that performs a request and unmarshals the response as raw json
 func PerformRequestRaw(f *FritzBoxClient, req request.DataRequest) (map[string]interface{}, error) {
 	body, err := f.client.RequestData(req)
 	if err != nil {

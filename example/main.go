@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -29,25 +28,21 @@ func main() {
 	}
 	fmt.Printf("session: %+v\n", session)
 
-	body, err := client.GetData(request.DataRequest{
-		Parameters: map[string]string{
-			"page": "netDev",
-		},
-	})
+	body, err := client.GetData(request.NetworkUsageRequest)
 	if err != nil {
 		fmt.Printf("cant request data: %s\n", err)
 		os.Exit(1)
 	}
 
-	os.WriteFile("response.json", body, 0644)
+	// os.WriteFile("response.json", body, 0644)
 
-	resp, err := response.UnmarshalAs[response.NetDev](body)
+	resp, err := response.UnmarshalCustomAs[response.NetCnt](body)
 	if err != nil {
 		fmt.Printf("cant unmarshal data: %s\n", err)
 		os.Exit(1)
 	}
-	marshalled, _ := json.Marshal(resp)
-	os.WriteFile("my.json", marshalled, 0644)
+	// marshalled, _ := json.Marshal(resp)
+	// os.WriteFile("my.json", marshalled, 0644)
 
 	// fmt.Println("connected devices:")
 	// for _, d := range resp.Data.Devices {

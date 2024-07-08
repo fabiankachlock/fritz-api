@@ -2,6 +2,7 @@ package transform
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -10,6 +11,7 @@ const (
 	// it allows the empty value of any type independent of the target type
 	// this is especially used because the fritzbox api will sometimes return empty array for object types
 	TransformExtendedEmpty = "extendedEmpty"
+	TransformStringToInt   = "stringToInt"
 )
 
 func transformExtendedEmpty(value interface{}, target reflect.Value) interface{} {
@@ -29,8 +31,21 @@ func transformExtendedEmpty(value interface{}, target reflect.Value) interface{}
 	return value
 }
 
+func transformStringToInt(value interface{}, target reflect.Value) interface{} {
+	if reflect.ValueOf(value).IsZero() {
+		return 0
+	}
+	if reflect.ValueOf(value).Kind() == reflect.String {
+		if intValue, err := strconv.Atoi(value.(string)); err == nil {
+			return intValue
+		}
+	}
+	return value
+}
+
 var transformersMap = map[string]func(interface{}, reflect.Value) interface{}{
 	TransformExtendedEmpty: transformExtendedEmpty,
+	TransformStringToInt:   transformStringToInt,
 }
 
 func MapToStruct[T any](raw map[string]interface{}, target T) T {

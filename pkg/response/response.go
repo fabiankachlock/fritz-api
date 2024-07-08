@@ -39,3 +39,14 @@ func UnmarshalAs[T any](response []byte) (DataResponse[T], error) {
 
 	return transform.MapToStruct(data, dataResponse), nil
 }
+
+func UnmarshalCustomAs[T any](response []byte) (T, error) {
+	var dataResponse T
+	data := map[string]interface{}{}
+	err := json.Unmarshal(response, &data)
+	if err != nil {
+		return dataResponse, err
+	}
+
+	return transform.MapToStruct(data, dataResponse), nil
+}

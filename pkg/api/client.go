@@ -143,5 +143,9 @@ func (c Client) RequestData(req request.DataRequest) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
-	return data, nil
+	transformedData, err := req.ResponseTransformer(data)
+	if err != nil {
+		return []byte{}, err
+	}
+	return transformedData, nil
 }
