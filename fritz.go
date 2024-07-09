@@ -62,6 +62,11 @@ func (f *FritzBoxClient) GetEnergyUsage() (response.Energy, error) {
 	return PerformRequestCustom[response.Energy](f, request.EnergyUsageRequest)
 }
 
+func (f *FritzBoxClient) GetSystemLogs(filter response.LogFilter) (response.DataResponse[response.Log], error) {
+	params := map[string]string{request.RequestParamFilter: string(filter)}
+	return PerformRequest[response.Log](f, request.WithParams(request.SystemLogsRequest, params))
+}
+
 // PerformRequest is a wrapper that performs a request and unmarshals the response as data response
 func PerformRequest[T any](f *FritzBoxClient, req request.DataRequest) (response.DataResponse[T], error) {
 	body, err := f.client.RequestData(req)

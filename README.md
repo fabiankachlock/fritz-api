@@ -95,3 +95,13 @@ func main() {
 }
 
 ```
+
+## TODO
+
+- more json transformers
+  - string to Date
+  - int to bool
+  - percentage to double(?)
+- find a fix for better type safety in polymorphic responses
+- provide Speed-in-string parsing solution (with unit discovery)
+- unify data volume units (some fields are in MBit/s some not)

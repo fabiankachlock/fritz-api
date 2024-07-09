@@ -28,7 +28,7 @@ func main() {
 	}
 	fmt.Printf("session: %+v\n", session)
 
-	body, err := client.GetData(request.EnergyUsageRequest)
+	body, err := client.GetData(request.WithParams(request.SystemLogsRequest, map[string]string{"filter": "net"}))
 	if err != nil {
 		fmt.Printf("cant request data: %s\n", err)
 		os.Exit(1)
@@ -36,7 +36,7 @@ func main() {
 
 	os.WriteFile("response.json", body, 0644)
 
-	resp, err := response.UnmarshalCustomAs[response.DataResponse[response.Energy]](body)
+	resp, err := response.UnmarshalCustomAs[response.DataResponse[response.Log]](body)
 	if err != nil {
 		fmt.Printf("cant unmarshal data: %s\n", err)
 		os.Exit(1)
