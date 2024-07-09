@@ -1,7 +1,6 @@
 package transform
 
 import (
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -59,7 +58,6 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 	for key, value := range raw {
 		field := findJsonField(targetValue, key)
 		if !field.IsValid() || !field.CanSet() {
-			// fmt.Println("field not found", key, value, field, reflect.ValueOf(target).Type())
 			continue
 		}
 
@@ -104,7 +102,7 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 				sliceLen := len(valueType)
 				elementType := field.Type().Elem()
 				slice := reflect.MakeSlice(reflect.SliceOf(elementType), 0, sliceLen)
-				fmt.Println("slice", key, elementType.Kind(), field.Type().Elem().Kind())
+
 				switch elementType.Kind() {
 				case reflect.Struct:
 					for i := 0; i < sliceLen; i++ {
