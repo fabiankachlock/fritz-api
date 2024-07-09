@@ -28,4 +28,11 @@ var (
 		},
 		ResponseTransformer: transformer.NetCntToJson,
 	}
+
+	EnergyUsageRequest = DataRequest{
+		Parameters: map[string]string{
+			"page": "energy",
+		},
+		ResponseTransformer: transformer.Noop,
+	}
 )

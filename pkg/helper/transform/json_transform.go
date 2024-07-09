@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -12,20 +13,11 @@ const (
 	// this is especially used because the fritzbox api will sometimes return empty array for object types
 	TransformExtendedEmpty = "extendedEmpty"
 	TransformStringToInt   = "stringToInt"
+	TransformToSlice       = "toSlice"
 )
 
 func transformExtendedEmpty(value interface{}, target reflect.Value) interface{} {
-	isEmpty := reflect.ValueOf(value).IsZero()
-	// switch valueType := value.(type) {
-	// case map[string]interface{}:
-	// 	isEmpty = len(valueType) == 0
-	// case []interface{}:
-	// 	isEmpty = len(valueType) == 0
-	// default:
-	// 	isEmpty = value == reflect.Zero(reflect.TypeOf(value)).Interface()
-	// }
-
-	if isEmpty {
+	if reflect.ValueOf(value).IsZero() {
 		return reflect.Zero(target.Type()).Interface()
 	}
 	return value
@@ -43,9 +35,19 @@ func transformStringToInt(value interface{}, target reflect.Value) interface{} {
 	return value
 }
 
+func transformToSlice(value interface{}, target reflect.Value) interface{} {
+	if reflect.TypeOf(value).Kind() != reflect.Slice {
+		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(value)), 0, 0)
+		slice = reflect.Append(slice, reflect.ValueOf(value))
+		return slice.Interface()
+	}
+	return value
+}
+
 var transformersMap = map[string]func(interface{}, reflect.Value) interface{}{
 	TransformExtendedEmpty: transformExtendedEmpty,
 	TransformStringToInt:   transformStringToInt,
+	TransformToSlice:       transformToSlice,
 }
 
 func MapToStruct[T any](raw map[string]interface{}, target T) T {
@@ -62,7 +64,6 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 		}
 
 		transformers := findTransformer(targetValue, key)
-		transformExtendedEmpty(value, field)
 		for _, transformerKey := range transformers {
 			transformer, ok := transformersMap[transformerKey]
 			if ok {
@@ -103,7 +104,7 @@ func MapToStruct[T any](raw map[string]interface{}, target T) T {
 				sliceLen := len(valueType)
 				elementType := field.Type().Elem()
 				slice := reflect.MakeSlice(reflect.SliceOf(elementType), 0, sliceLen)
-
+				fmt.Println("slice", key, elementType.Kind(), field.Type().Elem().Kind())
 				switch elementType.Kind() {
 				case reflect.Struct:
 					for i := 0; i < sliceLen; i++ {

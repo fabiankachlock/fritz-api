@@ -58,6 +58,10 @@ func (f *FritzBoxClient) GetNetworkUsage() (response.NetCnt, error) {
 	return PerformRequestCustom[response.NetCnt](f, request.NetworkUsageRequest)
 }
 
+func (f *FritzBoxClient) GetEnergyUsage() (response.Energy, error) {
+	return PerformRequestCustom[response.Energy](f, request.EnergyUsageRequest)
+}
+
 // PerformRequest is a wrapper that performs a request and unmarshals the response as data response
 func PerformRequest[T any](f *FritzBoxClient, req request.DataRequest) (response.DataResponse[T], error) {
 	body, err := f.client.RequestData(req)

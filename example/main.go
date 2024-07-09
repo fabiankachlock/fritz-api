@@ -15,7 +15,7 @@ const (
 )
 
 func main() {
-	client := fritz.NewClient("http://127.0.0.1:4000")
+	client := fritz.NewClient("http://192.168.0.1")
 	err := client.Login(Username, Password)
 	if err != nil {
 		fmt.Printf("cant log in: %s\n", err)
@@ -28,19 +28,20 @@ func main() {
 	}
 	fmt.Printf("session: %+v\n", session)
 
-	body, err := client.GetData(request.NetworkUsageRequest)
+	body, err := client.GetData(request.EnergyUsageRequest)
 	if err != nil {
 		fmt.Printf("cant request data: %s\n", err)
 		os.Exit(1)
 	}
 
-	// os.WriteFile("response.json", body, 0644)
+	os.WriteFile("response.json", body, 0644)
 
-	resp, err := response.UnmarshalCustomAs[response.NetCnt](body)
+	resp, err := response.UnmarshalCustomAs[response.DataResponse[response.Energy]](body)
 	if err != nil {
 		fmt.Printf("cant unmarshal data: %s\n", err)
 		os.Exit(1)
 	}
+	fmt.Printf("response: %+v\n", resp)
 	// marshalled, _ := json.Marshal(resp)
 	// os.WriteFile("my.json", marshalled, 0644)
 
